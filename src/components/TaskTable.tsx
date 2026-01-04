@@ -1,4 +1,3 @@
-
 import { useMemo, useState } from 'react';
 import {
   Box,
@@ -19,18 +18,23 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { DerivedTask, Task } from '@/types';
+import { DerivedTask, Task, TaskInput } from '@/types';
 import TaskForm from '@/components/TaskForm';
 import TaskDetailsDialog from '@/components/TaskDetailsDialog';
 
 interface Props {
   tasks: DerivedTask[];
-  onAdd: (payload: Omit<Task, 'id'>) => void;
+  onAdd: (payload: TaskInput) => void;
   onUpdate: (id: string, patch: Partial<Task>) => void;
   onDelete: (id: string) => void;
 }
 
-export default function TaskTable({ tasks, onAdd, onUpdate, onDelete }: Props) {
+export default function TaskTable({
+  tasks,
+  onAdd,
+  onUpdate,
+  onDelete,
+}: Props) {
   const [openForm, setOpenForm] = useState(false);
   const [editing, setEditing] = useState<Task | null>(null);
   const [details, setDetails] = useState<Task | null>(null);
@@ -47,23 +51,32 @@ export default function TaskTable({ tasks, onAdd, onUpdate, onDelete }: Props) {
     setOpenForm(true);
   };
 
-  const handleSubmit = (value: Omit<Task, 'id'> & { id?: string }) => {
+  const handleSubmit = (value: TaskInput) => {
     if (value.id) {
-      const { id, ...rest } = value as Task;
+      const { id, ...rest } = value;
       onUpdate(id, rest);
     } else {
-      onAdd(value as Omit<Task, 'id'>);
+      onAdd(value);
     }
   };
 
   return (
     <Card>
       <CardContent>
-        <Stack direction="row" alignItems="center" justifyContent="space-between" mb={2}>
+        <Stack
+          direction="row"
+          alignItems="center"
+          justifyContent="space-between"
+          mb={2}
+        >
           <Typography variant="h6" fontWeight={700}>
             Tasks
           </Typography>
-          <Button startIcon={<AddIcon />} variant="contained" onClick={handleAddClick}>
+          <Button
+            startIcon={<AddIcon />}
+            variant="contained"
+            onClick={handleAddClick}
+          >
             Add Task
           </Button>
         </Stack>
@@ -88,7 +101,7 @@ export default function TaskTable({ tasks, onAdd, onUpdate, onDelete }: Props) {
                   key={t.id}
                   hover
                   sx={{ cursor: 'pointer' }}
-                  onClick={() => setDetails(t)} // 👈 View dialog
+                  onClick={() => setDetails(t)}
                 >
                   <TableCell>
                     <Stack spacing={0.5}>
@@ -106,7 +119,9 @@ export default function TaskTable({ tasks, onAdd, onUpdate, onDelete }: Props) {
                     </Stack>
                   </TableCell>
 
-                  <TableCell align="right">${t.revenue.toLocaleString()}</TableCell>
+                  <TableCell align="right">
+                    ${t.revenue.toLocaleString()}
+                  </TableCell>
                   <TableCell align="right">{t.timeTaken}</TableCell>
                   <TableCell align="right">
                     {t.roi == null ? 'N/A' : t.roi.toFixed(1)}
@@ -119,8 +134,7 @@ export default function TaskTable({ tasks, onAdd, onUpdate, onDelete }: Props) {
                       <Tooltip title="Edit">
                         <IconButton
                           size="small"
-                          // ✅ FIX: stop row click
-                          onClick={(e) => {
+                          onClick={e => {
                             e.stopPropagation();
                             handleEditClick(t);
                           }}
@@ -133,8 +147,7 @@ export default function TaskTable({ tasks, onAdd, onUpdate, onDelete }: Props) {
                         <IconButton
                           size="small"
                           color="error"
-                          // ✅ FIX: stop row click
-                          onClick={(e) => {
+                          onClick={e => {
                             e.stopPropagation();
                             onDelete(t.id);
                           }}
@@ -151,7 +164,7 @@ export default function TaskTable({ tasks, onAdd, onUpdate, onDelete }: Props) {
                 <TableRow>
                   <TableCell colSpan={7}>
                     <Box py={6} textAlign="center" color="text.secondary">
-                      No tasks yet. Click "Add Task" to get started.
+                      No tasks yet. Click &quot;Add Task&quot; to get started.
                     </Box>
                   </TableCell>
                 </TableRow>
