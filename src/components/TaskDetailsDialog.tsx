@@ -1,4 +1,3 @@
-
 import {
   Button,
   Dialog,
@@ -11,7 +10,7 @@ import {
   Typography,
 } from '@mui/material';
 import { daysBetween } from '@/utils/logic';
-import { calculateROI } from '@/utils/roi'; // ✅ ADD THIS
+import { calculateROI } from '@/utils/roi';
 import { Task } from '@/types';
 import { useEffect, useState } from 'react';
 
@@ -22,7 +21,12 @@ interface Props {
   onSave: (id: string, patch: Partial<Task>) => void;
 }
 
-export default function TaskDetailsDialog({ open, task, onClose, onSave }: Props) {
+export default function TaskDetailsDialog({
+  open,
+  task,
+  onClose,
+  onSave,
+}: Props) {
   const [revenue, setRevenue] = useState<number | ''>('');
   const [timeTaken, setTimeTaken] = useState<number | ''>('');
   const [notes, setNotes] = useState('');
@@ -35,6 +39,19 @@ export default function TaskDetailsDialog({ open, task, onClose, onSave }: Props
   }, [open, task]);
 
   if (!task) return null;
+
+  const createdAtText = task.createdAt
+    ? new Date(task.createdAt).toLocaleString()
+    : 'N/A';
+
+  const completedAtText = task.completedAt
+    ? new Date(task.completedAt).toLocaleString()
+    : null;
+
+  const cycleDays =
+    task.createdAt && task.completedAt
+      ? `${daysBetween(task.createdAt, task.completedAt)}d`
+      : null;
 
   const handleSave = () => {
     onSave(task.id, {
@@ -51,6 +68,7 @@ export default function TaskDetailsDialog({ open, task, onClose, onSave }: Props
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <DialogTitle>Task Details</DialogTitle>
+
       <DialogContent>
         <Stack spacing={2} mt={1}>
           <Typography variant="h6" fontWeight={700}>
@@ -60,16 +78,12 @@ export default function TaskDetailsDialog({ open, task, onClose, onSave }: Props
           <Divider />
 
           <Typography variant="body2" color="text.secondary">
-            Created: {new Date(task.createdAt).toLocaleString()}
-            {task.completedAt
-              ? ` • Completed: ${new Date(task.completedAt).toLocaleString()} • Cycle: ${daysBetween(
-                  task.createdAt,
-                  task.completedAt
-                )}d`
+            Created: {createdAtText}
+            {completedAtText && cycleDays
+              ? ` • Completed: ${completedAtText} • Cycle: ${cycleDays}`
               : ''}
           </Typography>
 
-          {/* ✅ ROI DISPLAY (THIS IS THE LINE YOU ASKED ABOUT) */}
           <Typography>
             ROI: {calculateROI(task.revenue, task.timeTaken)}
           </Typography>
@@ -89,7 +103,9 @@ export default function TaskDetailsDialog({ open, task, onClose, onSave }: Props
               type="number"
               value={timeTaken}
               onChange={e =>
-                setTimeTaken(e.target.value === '' ? '' : Number(e.target.value))
+                setTimeTaken(
+                  e.target.value === '' ? '' : Number(e.target.value)
+                )
               }
               fullWidth
             />
