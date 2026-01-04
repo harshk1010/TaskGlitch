@@ -9,9 +9,17 @@ export interface Task {
   priority: Priority;
   status: Status;
   notes?: string;
-  createdAt?: string; // ISO date string
-  completedAt?: string; // ISO date string if Done
+  createdAt?: string;     // backend-managed
+  completedAt?: string;  // backend-managed
 }
+
+/**
+ * Form / API input type
+ * Used when creating or updating tasks from the UI
+ */
+export type TaskInput = Omit<Task, 'id' | 'createdAt' | 'completedAt'> & {
+  id?: string;
+};
 
 export interface DerivedTask extends Task {
   roi: number | null; // null means N/A
@@ -26,5 +34,3 @@ export interface Metrics {
   averageROI: number; // average over valid ROI values
   performanceGrade: 'Excellent' | 'Good' | 'Needs Improvement';
 }
-
-
